@@ -25,7 +25,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="container-app py-10">
+    <div className="container-app py-10 pt-20">
       <div className="mx-auto max-w-md">
         <div className="card card-pad">
           <h2 className="text-xl font-semibold text-slate-900">Register</h2>

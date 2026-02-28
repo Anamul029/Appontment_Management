@@ -4,7 +4,7 @@ export function HomePage() {
   return (
     <div className="bg-slate-50 pt-16">
       {/* Hero Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 px-[15px] bg-white">
         <div className="max-w-6xl mx-auto ">
           <div className="grid md:grid-cols-2 items-center gap-10">
             {/* Left side */}
@@ -37,7 +37,7 @@ export function HomePage() {
 
             {/* Right side - Appointment preview card */}
             <div className="bg-white border border-slate-200 rounded-lg shadow-md p-6">
-              <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
+              {/* <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
                 Appointment Preview
               </div>
               <div className="space-y-3">
@@ -74,7 +74,8 @@ export function HomePage() {
                     Completed
                   </span>
                 </div>
-              </div>
+              </div> */}
+              <img className="w-full" src="https://tse4.mm.bing.net/th/id/OIP.YuDKQiub2E1GziFpr74HNwHaE7?pid=Api&P=0&h=180" alt="" />
             </div>
           </div>
         </div>

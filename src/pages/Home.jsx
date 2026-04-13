@@ -75,7 +75,7 @@ export function HomePage() {
                   </span>
                 </div>
               </div> */}
-              <img className="w-full" src="https://tse4.mm.bing.net/th/id/OIP.YuDKQiub2E1GziFpr74HNwHaE7?pid=Api&P=0&h=180" alt="" />
+              <img className="w-full" src="https://png.pngtree.com/thumb_back/fw800/background/20230519/pngtree-group-of-doctors-pose-together-to-show-their-profession-image_2612233.jpg" alt="" />
             </div>
           </div>
         </div>

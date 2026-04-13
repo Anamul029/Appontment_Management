@@ -14,9 +14,22 @@ function nextStatus(current) {
 export function DoctorDashboardPage() {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setAppointments(getAppointments());
+    let active = true;
+    async function load() {
+      try {
+        const items = await getAppointments();
+        if (active) setAppointments(items);
+      } catch (err) {
+        if (active) setError(err.message || "Failed to load appointments.");
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const myAppointments = useMemo(
@@ -24,9 +37,21 @@ export function DoctorDashboardPage() {
     [appointments, user?.name],
   );
 
-  function advance(ap) {
-    const updated = updateAppointmentStatus(ap.id, nextStatus(ap.status));
-    setAppointments(updated);
+  async function advance(ap) {
+    try {
+      const next = nextStatus(ap.status);
+      console.log("[DoctorDashboard] advance", {
+        appointmentId: ap.id,
+        from: ap.status,
+        to: next,
+      });
+      const updated = await updateAppointmentStatus(ap.id, next);
+      setAppointments((prev) =>
+        prev.map((item) => (item.id === ap.id ? updated : item)),
+      );
+    } catch (err) {
+      setError(err.message || "Status update failed.");
+    }
   }
 
   return (
@@ -41,6 +66,7 @@ export function DoctorDashboardPage() {
       </div>
 
       <div className="card">
+        {error ? <div className="p-4 text-sm text-rose-700">{error}</div> : null}
         <div className="flex items-center justify-between border-b border-slate-200 p-6">
           <div>
             <div className="text-lg font-semibold text-slate-900">

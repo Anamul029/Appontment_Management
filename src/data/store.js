@@ -1,47 +1,52 @@
-import { dummyAppointments } from "./appointments.js";
+import { apiRequest, getToken } from "../lib/api.js";
 
-const STORAGE_KEY = "das_appointments_v1";
+export async function getAppointments() {
+  const res = await apiRequest("/appointments");
+  return res.items || [];
+}
 
-function safeParse(json) {
-  try {
-    return JSON.parse(json);
-  } catch {
-    return null;
+export async function addAppointment({ doctorId, date, notes = "" }) {
+  const res = await apiRequest("/appointments", {
+    method: "POST",
+    body: JSON.stringify({ doctorId, date, notes }),
+  });
+  return res.appointment;
+}
+
+export async function updateAppointmentStatus(appointmentId, status) {
+  const token = getToken();
+  console.log("[updateAppointmentStatus] request", {
+    appointmentId,
+    status,
+    hasToken: Boolean(token),
+  });
+  const res = await apiRequest(`/appointments/${appointmentId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+  console.log("[updateAppointmentStatus] response", {
+    appointmentId,
+    newStatus: res.appointment?.status,
+    emailNotification: res.emailNotification,
+  });
+  if (res.emailNotification && !res.emailNotification.ok) {
+    console.warn("[updateAppointmentStatus] email was not sent:", res.emailNotification);
   }
+  return res.appointment;
 }
 
-export function getAppointments() {
-  const saved = safeParse(localStorage.getItem(STORAGE_KEY));
-  if (Array.isArray(saved)) return saved;
-  return dummyAppointments;
+export async function getDoctors() {
+  const res = await apiRequest("/users?role=doctor");
+  return (res.items || []).map((item) => ({
+    id: item.id,
+    name: item.name,
+    email: item.email,
+    specialization: item.specialization || "General",
+  }));
 }
 
-export function saveAppointments(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
-
-export function addAppointment({ patientName, patientEmail, doctorId, doctorName, date }) {
-  const items = getAppointments();
-  const next = [
-    {
-      id: `ap_${Date.now()}`,
-      patientName,
-      patientEmail,
-      doctorId,
-      doctorName,
-      date,
-      status: "Pending"
-    },
-    ...items
-  ];
-  saveAppointments(next);
-  return next;
-}
-
-export function updateAppointmentStatus(appointmentId, status) {
-  const items = getAppointments();
-  const next = items.map((ap) => (ap.id === appointmentId ? { ...ap, status } : ap));
-  saveAppointments(next);
-  return next;
+export async function getUsersByRole(role) {
+  const res = await apiRequest(`/users?role=${encodeURIComponent(role)}`);
+  return res.items || [];
 }
 

@@ -7,9 +7,22 @@ import { getAppointments } from "../../data/store.js";
 export function PatientDashboardPage() {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setAppointments(getAppointments());
+    let active = true;
+    async function load() {
+      try {
+        const items = await getAppointments();
+        if (active) setAppointments(items);
+      } catch (err) {
+        if (active) setError(err.message || "Failed to load appointments.");
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const myAppointments = useMemo(
@@ -34,6 +47,7 @@ export function PatientDashboardPage() {
       </div>
 
       <div className="card">
+        {error ? <div className="p-4 text-sm text-rose-700">{error}</div> : null}
         <div className="border-b border-slate-200 p-6">
           <div className="text-lg font-semibold text-slate-900">
             My Appointments

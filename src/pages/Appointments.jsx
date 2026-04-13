@@ -6,9 +6,22 @@ import { getAppointments } from "../data/store.js";
 export function AppointmentsPage() {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setAppointments(getAppointments());
+    let active = true;
+    async function load() {
+      try {
+        const items = await getAppointments();
+        if (active) setAppointments(items);
+      } catch (err) {
+        if (active) setError(err.message || "Failed to load appointments.");
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const visibleAppointments = useMemo(() => {
@@ -35,6 +48,9 @@ export function AppointmentsPage() {
       </div>
 
       <div className="card">
+        {error ? (
+          <div className="p-4 text-sm text-rose-700">{error}</div>
+        ) : null}
         <div className="overflow-x-auto">
           <table className="table">
             <thead>

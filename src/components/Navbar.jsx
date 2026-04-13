@@ -21,6 +21,9 @@ function NavItem({ to, children }) {
 
 export function Navbar() {
   const { isAuthenticated, logout } = useAuth();
+  async function handleLogout() {
+    await logout();
+  }
 
   return (
     <header className="border-b fixed z-50 w-full border-slate-200 bg-white">
@@ -38,7 +41,7 @@ export function Navbar() {
           ) : (
             <>
               <NavItem to="/dashboard">Dashboard</NavItem>
-              <button type="button" className="btn-outline" onClick={logout}>
+              <button type="button" className="btn-outline" onClick={handleLogout}>
                 Logout
               </button>
             </>

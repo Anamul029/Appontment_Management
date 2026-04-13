@@ -12,16 +12,23 @@ export function RegisterPage() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("patient");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
+    if (isSubmitting) return;
     setError("");
-    const res = register({ name, email, password, role });
-    if (!res.ok) {
-      setError(res.message);
-      return;
+    setIsSubmitting(true);
+    try {
+      const res = await register({ name, email, password, role });
+      if (!res.ok) {
+        setError(res.message);
+        return;
+      }
+      navigate(dashboardPathForRole(res.role), { replace: true });
+    } finally {
+      setIsSubmitting(false);
     }
-    navigate(dashboardPathForRole(role), { replace: true });
   }
 
   return (
@@ -47,6 +54,7 @@ export function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your Name"
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -58,6 +66,7 @@ export function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 type="email"
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -69,6 +78,7 @@ export function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
                 type="password"
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -79,6 +89,7 @@ export function RegisterPage() {
                 className="input"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
+                disabled={isSubmitting}
               >
                 <option value="patient">Patient</option>
                 <option value="doctor">Doctor</option>
@@ -88,8 +99,8 @@ export function RegisterPage() {
               </div>
             </div>
 
-            <button type="submit" className="btn-primary w-full">
-              Create Account
+            <button type="submit" className="btn-primary w-full disabled:opacity-60" disabled={isSubmitting}>
+              {isSubmitting ? "Creating account..." : "Create Account"}
             </button>
           </form>
 

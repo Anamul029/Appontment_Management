@@ -12,17 +12,23 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
+    if (isSubmitting) return;
     setError("");
-    const res = login({ email, password });
-    if (!res.ok) {
-      setError(res.message);
-      return;
+    setIsSubmitting(true);
+    try {
+      const res = await login({ email, password });
+      if (!res.ok) {
+        setError(res.message);
+        return;
+      }
+      navigate(from || dashboardPathForRole(res.role), { replace: true });
+    } finally {
+      setIsSubmitting(false);
     }
-    const stored = JSON.parse(localStorage.getItem("das_auth_user_v1"));
-    navigate(from || dashboardPathForRole(stored?.role), { replace: true });
   }
 
   return (
@@ -49,6 +55,7 @@ export function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@demo.com"
                 type="email"
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -60,12 +67,13 @@ export function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="admin123"
                 type="password"
+                disabled={isSubmitting}
                 required
               />
             </div>
 
-            <button type="submit" className="btn-primary w-full">
-              Login
+            <button type="submit" className="btn-primary w-full disabled:opacity-60" disabled={isSubmitting}>
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
 

@@ -15,7 +15,8 @@ import { AppointmentsPage } from "../pages/Appointments.jsx";
 import { useAuth } from "../components/auth/AuthContext.jsx";
 
 function RedirectIfAuthed({ children }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isInitializing, user } = useAuth();
+  if (isInitializing) return null;
   if (isAuthenticated)
     return <Navigate to="/dashboard" replace state={{ role: user?.role }} />;
   return children;

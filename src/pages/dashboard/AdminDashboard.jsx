@@ -1,14 +1,37 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { SummaryCard } from "../../components/ui/SummaryCard.jsx";
 import { StatusBadge } from "../../components/ui/StatusBadge.jsx";
-import { dummyDoctors } from "../../data/doctors.js";
-import { dummyUsers } from "../../data/users.js";
-import { getAppointments } from "../../data/store.js";
+import { getAppointments, getUsersByRole } from "../../data/store.js";
 
 export function AdminDashboardPage() {
-  const appointments = useMemo(() => getAppointments(), []);
-  const totalDoctors = dummyDoctors.length;
-  const totalPatients = dummyUsers.filter((u) => u.role === "patient").length;
+  const [appointments, setAppointments] = useState([]);
+  const [totalDoctors, setTotalDoctors] = useState(0);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const [items, doctors, patients] = await Promise.all([
+          getAppointments(),
+          getUsersByRole("doctor"),
+          getUsersByRole("patient"),
+        ]);
+        if (!active) return;
+        setAppointments(items);
+        setTotalDoctors(doctors.length);
+        setTotalPatients(patients.length);
+      } catch (err) {
+        if (active) setError(err.message || "Failed to load dashboard data.");
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const totalAppointments = appointments.length;
 
   return (
@@ -27,6 +50,7 @@ export function AdminDashboardPage() {
       </div>
 
       <div className="card">
+        {error ? <div className="p-4 text-sm text-rose-700">{error}</div> : null}
         <div className="flex items-center justify-between border-b border-slate-200 p-6">
           <div>
             <div className="text-lg font-semibold text-slate-900">

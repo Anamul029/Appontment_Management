@@ -94,7 +94,7 @@ export function HomePage() {
             three primary roles: <span className="font-semibold">Admin</span>{" "}
             manages overall operations and appointments,{" "}
             <span className="font-semibold">Doctor</span> views and updates
-            assigned appointments, and{" "}
+            assigned appointments, and
             <span className="font-semibold">Patient</span> books appointments
             and tracks their visit status.
           </p>
